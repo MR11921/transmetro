@@ -1,7 +1,10 @@
 # Producción en la VM de Oracle Cloud: Caddy (HTTPS automático) -> app Laravel (Apache + oci8) -> Autonomous Database
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        WITH_ORACLE: "true"
     image: transmetro-app
     restart: unless-stopped
     env_file: .env.production
