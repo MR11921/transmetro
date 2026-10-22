@@ -1,0 +1,27 @@
+# Producción en la VM de Oracle Cloud: Caddy (HTTPS automático) -> app Laravel (Apache + oci8) -> Autonomous Database
+services:
+  app:
+    build: .
+    image: transmetro-app
+    restart: unless-stopped
+    env_file: .env.production
+    expose:
+      - "80"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:?Defina DOMINIO en .env (ej. 129-146-1-2.sslip.io)}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

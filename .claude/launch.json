@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "transmetro", "runtimeExecutable": "sh", "runtimeArgs": ["-c", "cd transmetro-app/public && exec php -S 127.0.0.1:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"], "port": 8000 }
+  ]
+}
