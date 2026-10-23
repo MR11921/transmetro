@@ -100,9 +100,12 @@ class RecorridoController extends Controller
 
         $r = $control->registrarParada($recorrido, $datos['pasajeros_abordan'], $datos['pasajeros_descienden'], $datos['en_espera'] ?? 0);
 
-        $avisos = collect($r['alertas'])->pluck('descripcion')->join(' ');
+        $avisos = collect($r['alertas'])->map(fn ($a) => 'Alerta '.str_replace('_', ' ', mb_strtolower($a->tipo_alerta)).': '.$a->descripcion);
+        if ($r['sin_abordar']) {
+            $avisos->prepend("No cabían todos: {$r['sin_abordar']} pasajeros quedaron en el andén.");
+        }
 
-        return back()->with('ok', 'Parada registrada. Ocupación: '.$r['control']->ocupacion_calculada.'.')->with('aviso', $avisos ?: null);
+        return back()->with('ok', 'Parada registrada. Ocupación: '.$r['control']->ocupacion_calculada.'.')->with('aviso', $avisos->join(' ') ?: null);
     }
 
     public function finalizar(Recorrido $recorrido)

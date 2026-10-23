@@ -73,6 +73,7 @@ class OcupacionTest extends TestCase
         $alerta = Alerta::where('tipo_alerta', 'ESPERA_ADICIONAL')->first();
         $this->assertNotNull($alerta);
         $this->assertStringContainsString('5 minutos', $alerta->descripcion);
+        $this->assertSame('PENDIENTE', $alerta->estado); // visible en Alertas y en el panel
     }
 
     /** CP-028 RN-012 (límite exacto: 25 % no aplica) */
@@ -85,13 +86,53 @@ class OcupacionTest extends TestCase
         $this->assertFalse(Alerta::where('tipo_alerta', 'ESPERA_ADICIONAL')->exists());
     }
 
-    /** CP-029 */
+    /** CP-029: nunca se supera la capacidad; quienes no caben quedan en el andén y el bus lleno genera alerta */
     public function test_no_se_supera_la_capacidad_del_bus(): void
     {
         $r = $this->recorridoEnCurso(50);
 
-        $this->expectException(ReglaNegocioException::class);
-        $this->tcp()->registrarParada($r, 51, 0);
+        $res = $this->tcp()->registrarParada($r, 60, 0);
+
+        $this->assertSame(50, $r->fresh()->ocupacionActual());
+        $this->assertSame(10, $res['sin_abordar']);
+        $this->assertDatabaseHas('control_pasajeros', ['id_recorrido' => $r->id_recorrido, 'pasajeros_abordan' => 50, 'ocupacion_calculada' => 50]);
+        $alerta = Alerta::where('tipo_alerta', 'BUS_LLENO')->first();
+        $this->assertSame('PENDIENTE', $alerta?->estado);
+        $this->assertStringContainsString('Quedaron 10 pasajeros', $alerta->descripcion);
+        $this->assertFalse(Alerta::where('tipo_alerta', 'ALTA_DEMANDA')->exists()); // 60 / 50 = 120 %
+    }
+
+    /** CP-068: el bus lleno sin pasajeros en el andén también genera alerta */
+    public function test_alerta_de_bus_lleno_al_100_por_ciento(): void
+    {
+        $r = $this->recorridoEnCurso(80);
+
+        $this->tcp()->registrarParada($r, 80, 0);
+
+        $this->assertDatabaseHas('alertas', ['id_recorrido' => $r->id_recorrido, 'tipo_alerta' => 'BUS_LLENO', 'nivel' => 'MEDIA', 'estado' => 'PENDIENTE']);
+    }
+
+    /** CP-069 RN-011: los que no caben cuentan para la demanda */
+    public function test_exceso_de_abordaje_dispara_alta_demanda(): void
+    {
+        $r = $this->recorridoEnCurso(100);
+
+        $this->tcp()->registrarParada($r, 150, 0); // 100 a bordo + 50 sin abordar = 150 %
+
+        $this->assertSame(100, $r->fresh()->ocupacionActual());
+        $this->assertDatabaseHas('alertas', ['tipo_alerta' => 'ALTA_DEMANDA', 'estado' => 'PENDIENTE']);
+        $this->assertFalse(Alerta::where('tipo_alerta', 'BUS_LLENO')->exists()); // la de alta demanda ya lo cubre
+    }
+
+    /** CP-070 RN-012: en la última estación no se aplica espera adicional */
+    public function test_sin_espera_adicional_en_la_ultima_estacion(): void
+    {
+        $r = $this->recorridoEnCurso(100, 2);
+
+        $this->tcp()->registrarParada($r, 30, 0);
+        $this->tcp()->registrarParada($r->fresh(), 0, 30);
+
+        $this->assertFalse(Alerta::where('tipo_alerta', 'ESPERA_ADICIONAL')->exists());
     }
 
     /** CP-030 */

@@ -41,7 +41,7 @@
                     <x-campo name="pasajeros_abordan" label="Abordan" type="number" min="0" value="0" required />
                     <x-campo name="en_espera" label="Quedan en andén" type="number" min="0" value="0" />
                 </div>
-                <small>Si la demanda (a bordo + en andén) alcanza el {{ config('transmetro.umbral_alta_demanda') }} % de la capacidad se genera una alerta. Con ocupación menor al {{ config('transmetro.umbral_baja_ocupacion') }} % se aplican {{ config('transmetro.minutos_espera_adicional') }} min de espera.</small>
+                <small>Si abordan más de los que caben, el bus se llena y el resto queda en el andén. Se genera una alerta cuando el bus va lleno, y una de alta demanda si a bordo + en andén llega al {{ config('transmetro.umbral_alta_demanda') }} % de la capacidad. Con ocupación menor al {{ config('transmetro.umbral_baja_ocupacion') }} % se aplican {{ config('transmetro.minutos_espera_adicional') }} min de espera (excepto en la última estación).</small>
                 <div class="form-actions"><button class="btn">Registrar parada</button></div>
             </form>
         @elseif ($r->estado === 'EN_CURSO')

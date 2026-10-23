@@ -75,7 +75,7 @@
             @forelse ($alertas as $a)
                 <tr>
                     <td><x-estado :valor="$a->estado" /></td>
-                    <td><strong>{{ $a->tipo_alerta === 'ALTA_DEMANDA' ? 'Alta demanda' : 'Espera adicional' }}</strong><br><small>{{ $a->descripcion }}</small></td>
+                    <td><strong>{{ ['ALTA_DEMANDA' => 'Alta demanda', 'BUS_LLENO' => 'Bus lleno'][$a->tipo_alerta] ?? 'Espera adicional' }}</strong><br><small>{{ $a->descripcion }}</small></td>
                     <td class="num"><small>{{ $a->fecha_hora->diffForHumans() }}</small></td>
                 </tr>
             @empty
