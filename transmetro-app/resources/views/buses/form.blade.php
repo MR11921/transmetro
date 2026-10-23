@@ -2,7 +2,7 @@
 @section('title', 'Buses')
 @section('content')
 @php $editando = $bus->exists; @endphp
-<div class="page-head"><div><h1>{{ $editando ? 'Editar bus '.$bus->numero_interno : 'Nuevo bus' }}</h1><p>RF-007</p></div></div>
+<div class="page-head"><div><h1>{{ $editando ? 'Editar bus '.$bus->numero_interno : 'Nuevo bus' }}</h1><p>Datos de la unidad, capacidad y parqueo</p></div></div>
 <div class="card" style="max-width: 800px">
     <form method="POST" class="form" action="{{ $editando ? route('buses.update', $bus) : route('buses.store') }}">
         @csrf @if($editando) @method('PUT') @endif
@@ -15,7 +15,7 @@
             </x-campo>
         </div>
         @unless ($editando)
-            <x-campo name="id_parqueo" label="Parqueo inicial (RN-006)" type="select" required>
+            <x-campo name="id_parqueo" label="Parqueo inicial" type="select" required>
                 <option value="">— Seleccione —</option>
                 @foreach ($parqueos as $p)<option value="{{ $p->id_parqueo }}" @selected(old('id_parqueo') == $p->id_parqueo)>{{ $p->codigo }} — {{ $p->estacion->nombre }}</option>@endforeach
             </x-campo>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Operadores')
 @section('content')
-<div class="page-head"><div><h1>Operadores de estación</h1><p>RF-010 · Usuarios con rol OPERADOR_ESTACION asignados a estaciones</p></div></div>
+<div class="page-head"><div><h1>Operadores de estación</h1><p>Usuarios con rol de operador asignados a estaciones</p></div></div>
 <div class="card">
     <form method="POST" action="{{ route('operadores.store') }}" class="form-row" style="align-items:end">@csrf
         <x-campo name="id_usuario" label="Operador" type="select" required>

@@ -3,7 +3,7 @@
 @section('content')
 @php $editando = $registro->exists; @endphp
 <div class="page-head">
-    <div><h1>{{ $editando ? 'Editar' : 'Nuevo' }} {{ $def['singular'] }}</h1><p>{{ $def['titulo'] }} · {{ $def['rf'] }}</p></div>
+    <div><h1>{{ $editando ? 'Editar' : 'Nuevo' }} {{ $def['singular'] }}</h1><p>{{ $def['titulo'] }}</p></div>
 </div>
 <div class="card" style="max-width: 800px">
     <form method="POST" class="form" action="{{ $editando ? route('catalogos.update', [$def['clave'], $registro->getKey()]) : route('catalogos.store', $def['clave']) }}">

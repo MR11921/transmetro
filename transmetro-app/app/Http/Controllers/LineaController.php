@@ -80,7 +80,7 @@ class LineaController extends Controller
         $distancia = $orden === 1 ? null : ($datos['distancia_desde_anterior'] ?? null);
 
         if ($orden > 1 && $distancia === null) {
-            throw new ReglaNegocioException('RN-009: indique la distancia desde la estación anterior.');
+            throw new ReglaNegocioException('Indique la distancia desde la estación anterior.');
         }
 
         $linea->estaciones()->attach($datos['id_estacion'], ['orden_estacion' => $orden, 'distancia_desde_anterior' => $distancia]);
@@ -102,7 +102,7 @@ class LineaController extends Controller
     public function quitarEstacion(Linea $linea, Estacion $estacion)
     {
         if ($estacion->lineas()->count() === 1) {
-            throw new ReglaNegocioException('RN-002: la estación debe pertenecer al menos a una línea. Asígnela a otra línea antes de quitarla.');
+            throw new ReglaNegocioException('La estación debe pertenecer al menos a una línea. Asígnela a otra línea antes de quitarla.');
         }
 
         if ($linea->recorridos()->where('estado', 'EN_CURSO')->exists()) {

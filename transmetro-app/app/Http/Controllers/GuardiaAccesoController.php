@@ -38,7 +38,7 @@ class GuardiaAccesoController extends Controller
     public function retirar(Acceso $acceso, Guardia $guardia)
     {
         if ($acceso->estado === 'ACTIVO' && $acceso->guardias()->count() <= 1) {
-            throw new ReglaNegocioException('RN-007: el acceso quedaría sin guardia. Asigne otro guardia antes de retirar este.');
+            throw new ReglaNegocioException('El acceso quedaría sin guardia. Asigne otro guardia antes de retirar este.');
         }
 
         DB::table('acceso_guardia')->where('id_acceso', $acceso->id_acceso)->where('id_guardia', $guardia->id_guardia)

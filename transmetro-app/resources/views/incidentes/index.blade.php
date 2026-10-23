@@ -3,7 +3,7 @@
 @section('content')
 @php $gestiona = auth()->user()->tieneRol('ADMINISTRADOR', 'ADMINISTRADOR_TRANSPORTE', 'OPERADOR_ESTACION'); @endphp
 <div class="page-head">
-    <div><h1>Incidentes</h1><p>RF-022 · Buses, estaciones, pasajeros, dispositivos, comunicaciones y seguridad</p></div>
+    <div><h1>Incidentes</h1><p>Buses, estaciones, pasajeros, dispositivos, comunicaciones y seguridad</p></div>
     <a class="btn" href="{{ route('incidentes.create') }}">Registrar incidente</a>
 </div>
 <div class="card">

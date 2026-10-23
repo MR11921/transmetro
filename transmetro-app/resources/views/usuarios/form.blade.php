@@ -2,7 +2,7 @@
 @section('title', 'Usuarios')
 @section('content')
 @php $editando = $usuario->exists; @endphp
-<div class="page-head"><div><h1>{{ $editando ? 'Editar usuario' : 'Nuevo usuario' }}</h1><p>RF-001</p></div></div>
+<div class="page-head"><div><h1>{{ $editando ? 'Editar usuario' : 'Nuevo usuario' }}</h1><p>Datos de acceso y rol del usuario</p></div></div>
 <div class="card" style="max-width: 800px">
     <form method="POST" class="form" action="{{ $editando ? route('usuarios.update', $usuario) : route('usuarios.store') }}">
         @csrf @if($editando) @method('PUT') @endif
@@ -26,7 +26,7 @@
             <x-campo name="password" label="{{ $editando ? 'Nueva contraseña (opcional)' : 'Contraseña' }}" type="password" :required="!$editando" autocomplete="new-password" />
             <x-campo name="password_confirmation" label="Confirmar contraseña" type="password" :required="!$editando" autocomplete="new-password" />
         </div>
-        <small>Mínimo 8 caracteres con letras y números. Se almacena cifrada (RNF-002).</small>
+        <small>Mínimo 8 caracteres con letras y números. Se almacena cifrada.</small>
         <div class="form-actions"><a class="btn btn-ghost" href="{{ route('usuarios.index') }}">Cancelar</a><button class="btn">Guardar</button></div>
     </form>
 </div>

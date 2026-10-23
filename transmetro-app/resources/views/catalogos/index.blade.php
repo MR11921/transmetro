@@ -3,7 +3,7 @@
 @section('content')
 @php $visibles = collect($def['campos'])->reject(fn ($c) => !empty($c['oculto'])); @endphp
 <div class="page-head">
-    <div><h1>{{ $def['titulo'] }}</h1><p>{{ $def['rf'] }} · {{ $registros->total() }} registros</p></div>
+    <div><h1>{{ $def['titulo'] }}</h1><p>{{ $registros->total() }} registros</p></div>
     <div class="actions">
         @if ($def['clave'] === 'accesos')<a class="btn btn-ghost" href="{{ route('seguridad.index') }}">Asignar guardias</a>@endif
         <a class="btn" href="{{ route('catalogos.create', $def['clave']) }}">Nuevo {{ $def['singular'] }}</a>
@@ -38,7 +38,7 @@
                     </td>
                 @endforeach
                 @if ($def['clave'] === 'accesos')
-                    <td>@if($r->guardias->isEmpty())<span class="badge bad">Sin guardia (RN-007)</span>@else{{ $r->guardias->pluck('nombre_completo')->join(', ') }}@endif</td>
+                    <td>@if($r->guardias->isEmpty())<span class="badge bad">Sin guardia</span>@else{{ $r->guardias->pluck('nombre_completo')->join(', ') }}@endif</td>
                 @endif
                 <td class="num"><a class="btn btn-ghost btn-sm" href="{{ route('catalogos.edit', [$def['clave'], $r->getKey()]) }}">Editar</a></td>
             </tr>

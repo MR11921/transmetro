@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Alertas')
 @section('content')
-<div class="page-head"><div><h1>Alertas operativas</h1><p>RF-017 · Alta demanda, baja ocupación, fallas de dispositivos e incidentes</p></div></div>
+<div class="page-head"><div><h1>Alertas operativas</h1><p>Alta demanda, baja ocupación, fallas de dispositivos e incidentes</p></div></div>
 <div class="card">
     <form class="filters" method="GET">
         <div class="field"><label for="estado">Estado</label>

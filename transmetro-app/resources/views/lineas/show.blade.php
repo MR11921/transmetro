@@ -5,7 +5,7 @@
 <div class="page-head">
     <div>
         <h1>{{ $linea->nombre }} <x-estado :valor="$linea->estado" /></h1>
-        <p>{{ $linea->municipalidad->nombre }} · {{ $linea->descripcion }} · Consulta integral (RF-025)</p>
+        <p>{{ $linea->municipalidad->nombre }} · {{ $linea->descripcion }}</p>
     </div>
     <div class="actions"><a class="btn btn-ghost" href="{{ route('lineas.edit', $linea) }}">Editar línea</a></div>
 </div>
@@ -13,13 +13,13 @@
 <div class="kpis">
     <div class="card kpi"><div class="label">Estaciones</div><div class="value">{{ $nEst }}</div></div>
     <div class="card kpi"><div class="label">Distancia total</div><div class="value">{{ number_format($linea->distanciaTotal(), 2) }} <small>km</small></div></div>
-    <div class="card kpi {{ $linea->cumpleCantidadBuses() ? '' : 'bad' }}"><div class="label">Buses (RN-004: {{ $nEst }}–{{ $nEst * 2 }})</div><div class="value">{{ $nBus }}</div></div>
+    <div class="card kpi {{ $linea->cumpleCantidadBuses() ? '' : 'bad' }}"><div class="label">Buses (requeridos {{ $nEst }}–{{ $nEst * 2 }})</div><div class="value">{{ $nBus }}</div></div>
     <div class="card kpi {{ $alertas->count() ? 'bad' : '' }}"><div class="label">Alertas pendientes</div><div class="value">{{ $alertas->count() }}</div></div>
 </div>
 
 <div class="grid grid-2">
     <section class="card">
-        <div class="card-head"><h2>Recorrido de estaciones</h2><small>RN-001 · RN-009</small></div>
+        <div class="card-head"><h2>Recorrido de estaciones</h2></div>
         <div class="table-wrap"><table class="table">
             <thead><tr><th>#</th><th>Estación</th><th>Accesos / guardias</th><th>Distancia desde anterior</th><th></th></tr></thead>
             <tbody>

@@ -5,14 +5,18 @@ use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BusController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\ControlAccesoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DistanciaController;
 use App\Http\Controllers\GuardiaAccesoController;
 use App\Http\Controllers\IncidenteController;
 use App\Http\Controllers\LineaController;
+use App\Http\Controllers\OcupacionController;
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\RecorridoController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\RolController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('modulo:usuarios')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);
         Route::patch('usuarios/{usuario}/estado', [UsuarioController::class, 'estado'])->name('usuarios.estado');
+        Route::get('roles', [RolController::class, 'index'])->name('roles.index');
     });
 
     // Catálogos: municipalidades, estaciones, accesos, guardias, pilotos, parqueos, métodos de pago, pasajeros, dispositivos
@@ -48,6 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::post('lineas/{linea}/estaciones', [LineaController::class, 'agregarEstacion'])->name('lineas.estaciones.agregar');
         Route::patch('lineas/{linea}/estaciones/{estacion}', [LineaController::class, 'distancia'])->name('lineas.estaciones.distancia');
         Route::delete('lineas/{linea}/estaciones/{estacion}', [LineaController::class, 'quitarEstacion'])->name('lineas.estaciones.quitar');
+        Route::get('distancias', [DistanciaController::class, 'index'])->name('distancias.index');
     });
 
     // RF-006 Guardias por acceso
@@ -102,6 +108,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('recorridos/{recorrido}/finalizar', [RecorridoController::class, 'finalizar'])->name('recorridos.finalizar');
     });
 
+    // RF-016 / RF-018 Ocupación de buses (punto de entrada al TCP)
+    Route::get('ocupacion', [OcupacionController::class, 'index'])->middleware('modulo:ocupacion')->name('ocupacion.index');
+
     // RF-017 Alertas
     Route::middleware('modulo:alertas')->group(function () {
         Route::get('alertas', [AlertaController::class, 'index'])->name('alertas.index');
@@ -121,6 +130,9 @@ Route::middleware('auth')->group(function () {
         Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::get('reportes/{tipo}', [ReporteController::class, 'show'])->name('reportes.show');
     });
+
+    // RF-025 Consulta integral
+    Route::get('consulta', [ConsultaController::class, 'index'])->middleware('modulo:consulta')->name('consulta.index');
 
     // RF-024 Auditoría
     Route::get('auditoria', [AuditoriaController::class, 'index'])->middleware('modulo:auditoria')->name('auditoria.index');

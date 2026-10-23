@@ -80,18 +80,19 @@ class OperacionTest extends TestCase
     }
 
     /** CP-047 RF-023 */
-    public function test_reportes_se_consultan_y_exportan_en_csv(): void
+    public function test_reportes_se_consultan_y_exportan_en_pdf(): void
     {
         $this->linea(3);
         $this->actingAs($this->usuario('ADMINISTRADOR_TRANSPORTE'));
 
         foreach (array_keys(\App\Http\Controllers\ReporteController::TIPOS) as $tipo) {
             $this->get("/reportes/{$tipo}")->assertOk();
+            $pdf = $this->get("/reportes/{$tipo}?formato=pdf");
+            $pdf->assertOk()->assertHeader('content-type', 'application/pdf');
+            $this->assertStringStartsWith('%PDF', $pdf->getContent());
         }
 
-        $csv = $this->get('/reportes/lineas?formato=csv');
-        $csv->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
-        $this->assertStringContainsString('Línea Prueba', $csv->streamedContent());
+        $this->assertDatabaseHas('auditoria', ['accion' => 'EXPORTAR_PDF']);
     }
 
     /** CP-048 RF-025 */

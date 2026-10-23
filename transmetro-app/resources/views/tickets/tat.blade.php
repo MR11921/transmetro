@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Terminal de autoservicio')
 @section('content')
-<div class="page-head"><div><h1>Terminal de Autoservicio (TAT)</h1><p>RF-012 · Adquisición de tickets — valor Q{{ number_format(config('transmetro.valor_ticket'), 2) }}</p></div></div>
+<div class="page-head"><div><h1>Terminal de Autoservicio (TAT)</h1><p>Compra de tickets — valor Q{{ number_format(config('transmetro.valor_ticket'), 2) }}</p></div></div>
 <div class="grid grid-2">
     <section class="card">
         <h2>Comprar ticket</h2>

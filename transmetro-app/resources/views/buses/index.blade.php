@@ -2,7 +2,7 @@
 @section('title', 'Buses')
 @section('content')
 <div class="page-head">
-    <div><h1>Buses</h1><p>RF-007 · RN-005 una línea por bus · RN-006 parqueo obligatorio</p></div>
+    <div><h1>Buses</h1><p>Cada bus pertenece a una sola línea y siempre tiene un parqueo asignado</p></div>
     <a class="btn" href="{{ route('buses.create') }}">Nuevo bus</a>
 </div>
 <div class="card"><div class="table-wrap"><table class="table">

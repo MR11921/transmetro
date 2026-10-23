@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models;
 use App\Services\Auditor;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-/** RF-023: reportes con filtro de fechas y exportación CSV. */
+/** RF-023: reportes con filtro de fechas y exportación PDF. */
 class ReporteController extends Controller
 {
     public const TIPOS = [
@@ -38,18 +39,24 @@ class ReporteController extends Controller
 
         [$columnas, $filas] = $this->{'reporte'.ucfirst($tipo)}($desde, $hasta);
 
-        if ($request->query('formato') === 'csv') {
-            Auditor::registrar('Reportes', 'EXPORTAR_CSV', null, null, self::TIPOS[$tipo]);
+        if ($request->query('formato') === 'pdf') {
+            Auditor::registrar('Reportes', 'EXPORTAR_PDF', null, null, self::TIPOS[$tipo]);
 
-            return response()->streamDownload(function () use ($columnas, $filas) {
-                $out = fopen('php://output', 'w');
-                fwrite($out, "\xEF\xBB\xBF");
-                fputcsv($out, $columnas);
-                foreach ($filas as $fila) {
-                    fputcsv($out, $fila);
-                }
-                fclose($out);
-            }, "reporte_{$tipo}_".now()->format('Ymd_His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+            $pdf = Pdf::loadView('reportes.pdf', [
+                'titulo' => self::TIPOS[$tipo], 'columnas' => $columnas, 'filas' => $filas, 'desde' => $desde, 'hasta' => $hasta,
+            ])->setPaper('letter', 'landscape')->setOption('isFontSubsettingEnabled', true);
+
+            // Numeración "Página X de Y" (el total solo se conoce después de dibujar el documento)
+            $dompdf = $pdf->getDomPDF();
+            $dompdf->render();
+            $canvas = $dompdf->getCanvas();
+            $canvas->page_text($canvas->get_width() - 88, $canvas->get_height() - 27, 'Página {PAGE_NUM} de {PAGE_COUNT}',
+                $dompdf->getFontMetrics()->getFont('DejaVu Sans'), 7, [0.48, 0.5, 0.64]);
+
+            return response($dompdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="reporte_'.$tipo.'_'.now()->format('Ymd_His').'.pdf"',
+            ]);
         }
 
         return view('reportes.show', [
@@ -67,7 +74,7 @@ class ReporteController extends Controller
             $l->cumpleCantidadBuses() ? 'Cumple' : 'No cumple',
         ]);
 
-        return [['Línea', 'Municipalidad', 'Estado', 'Estaciones', 'Distancia total (km)', 'Buses', 'Rango RN-004', 'RN-004'], $filas];
+        return [['Línea', 'Municipalidad', 'Estado', 'Estaciones', 'Distancia total (km)', 'Buses', 'Buses requeridos (mín. – máx.)', 'Cantidad de buses'], $filas];
     }
 
     private function reporteEstaciones(): array

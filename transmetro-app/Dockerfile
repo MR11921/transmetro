@@ -10,7 +10,7 @@ ENV ORACLE_HOME=/opt/oracle/instantclient \
     APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 # --- Oracle Instant Client (basic + sdk) desde download.oracle.com ---
-RUN apt-get update && apt-get install -y --no-install-recommends unzip curl libaio1t64 libzip-dev libpq-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends unzip curl libaio1t64 libzip-dev libpq-dev libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 RUN [ "$WITH_ORACLE" = "true" ] || exit 0 \
     && ln -sf /usr/lib/*-linux-gnu/libaio.so.1t64 /usr/lib/libaio.so.1 \
@@ -26,7 +26,7 @@ RUN [ "$WITH_ORACLE" = "true" ] || exit 0 \
 RUN if [ "$WITH_ORACLE" = "true" ]; then \
         echo "instantclient,/opt/oracle/instantclient" | pecl install oci8 && docker-php-ext-enable oci8; \
     fi \
-    && docker-php-ext-install zip opcache pdo_pgsql
+    && docker-php-ext-install zip opcache pdo_pgsql gd
 
 # --- Apache: servir /public y habilitar rewrite ---
 RUN sed -ri 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \

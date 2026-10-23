@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Auditoría')
 @section('content')
-<div class="page-head"><div><h1>Auditoría</h1><p>RF-024 · RNF-009 · RNF-012 · Operaciones registradas</p></div></div>
+<div class="page-head"><div><h1>Auditoría</h1><p>Operaciones registradas en la plataforma</p></div></div>
 <div class="card">
     <form class="filters" method="GET">
         <div class="field"><label for="id_usuario">Usuario</label>

@@ -2,7 +2,7 @@
 @section('title', 'Recorridos')
 @section('content')
 <div class="page-head">
-    <div><h1>Recorridos</h1><p>RF-019 · Seguimiento de recorridos y Terminal de Control de Pasajeros</p></div>
+    <div><h1>Recorridos</h1><p>Seguimiento de recorridos y Terminal de Control de Pasajeros</p></div>
     @if(auth()->user()->puede('recorridos'))<a class="btn" href="{{ route('recorridos.create') }}">Programar recorrido</a>@endif
 </div>
 <div class="card">

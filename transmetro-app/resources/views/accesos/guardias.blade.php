@@ -3,7 +3,7 @@
 @section('content')
 @php $sinGuardia = $accesos->filter(fn ($a) => $a->estado === 'ACTIVO' && $a->guardias->isEmpty())->count(); @endphp
 <div class="page-head">
-    <div><h1>Seguridad en accesos</h1><p>RF-006 · RN-007: cada acceso debe tener al menos un guardia</p></div>
+    <div><h1>Seguridad en accesos</h1><p>Cada acceso debe tener al menos un guardia</p></div>
     <a class="btn btn-ghost" href="{{ route('catalogos.index', 'accesos') }}">Administrar accesos</a>
 </div>
 @if ($sinGuardia)<div class="alert alert-error">{{ $sinGuardia }} acceso(s) activo(s) sin guardia asignado.</div>@endif

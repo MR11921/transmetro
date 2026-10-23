@@ -48,11 +48,11 @@ class GestionFlota
         }
 
         if ($linea->minimoBuses() === 0) {
-            throw new ReglaNegocioException('La línea no tiene estaciones; no se pueden calcular sus buses permitidos (RN-004).');
+            throw new ReglaNegocioException('La línea no tiene estaciones; no se pueden calcular sus buses permitidos.');
         }
 
         if ($linea->buses()->count() >= $linea->maximoBuses()) {
-            throw new ReglaNegocioException("RN-004: la línea {$linea->nombre} ya tiene el máximo de {$linea->maximoBuses()} buses (doble de sus estaciones).");
+            throw new ReglaNegocioException("La línea {$linea->nombre} ya tiene el máximo de {$linea->maximoBuses()} buses (doble de sus estaciones).");
         }
 
         if ($bus->recorridoEnCurso()) {

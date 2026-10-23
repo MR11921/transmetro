@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Programar recorrido')
 @section('content')
-<div class="page-head"><div><h1>Programar recorrido</h1><p>RF-019 · El recorrido se realiza en la línea asignada al bus</p></div></div>
+<div class="page-head"><div><h1>Programar recorrido</h1><p>El recorrido se realiza en la línea asignada al bus</p></div></div>
 <div class="card" style="max-width: 800px">
     @if ($buses->isEmpty())<div class="alert alert-warn">No hay buses activos con línea asignada.</div>@endif
     <form method="POST" action="{{ route('recorridos.store') }}" class="form">@csrf

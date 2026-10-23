@@ -2,10 +2,10 @@
 @section('title', $titulo)
 @section('content')
 <div class="page-head">
-    <div><h1>{{ $titulo }}</h1><p>RF-023 · {{ count($filas) }} filas</p></div>
+    <div><h1>{{ $titulo }}</h1><p>{{ count($filas) }} {{ count($filas) === 1 ? 'registro' : 'registros' }}</p></div>
     <div class="actions">
         <a class="btn btn-ghost" href="{{ route('reportes.index') }}">Todos los reportes</a>
-        <a class="btn" href="{{ request()->fullUrlWithQuery(['formato' => 'csv']) }}">Exportar CSV</a>
+        <a class="btn" href="{{ request()->fullUrlWithQuery(['formato' => 'pdf']) }}">Exportar PDF</a>
     </div>
 </div>
 <div class="card">

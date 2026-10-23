@@ -8,7 +8,7 @@
 
 <div class="grid grid-2">
     <section class="card">
-        <div class="card-head"><h2>Línea</h2><small>RN-004 · RN-005</small></div>
+        <div class="card-head"><h2>Línea</h2></div>
         <p>Línea actual: <strong>{{ $lineaActual?->nombre ?? 'Sin línea asignada' }}</strong></p>
         <form method="POST" action="{{ route('buses.linea', $bus) }}" class="form-row mt-16" style="align-items:end">@csrf
             <x-campo name="id_linea" label="Asignar a línea" type="select" required>
@@ -35,7 +35,7 @@
     </section>
 
     <section class="card">
-        <div class="card-head"><h2>Parqueo</h2><small>RF-008 · RN-006</small></div>
+        <div class="card-head"><h2>Parqueo</h2></div>
         <p>Parqueo actual: @if($parqueoActual)<strong>{{ $parqueoActual->codigo }}</strong> — {{ $parqueoActual->estacion->nombre }}@else<span class="badge bad">Sin parqueo</span>@endif</p>
         <form method="POST" action="{{ route('buses.parqueo', $bus) }}" class="form-row mt-16" style="align-items:end">@csrf
             <x-campo name="id_parqueo" label="Cambiar a parqueo" type="select" required>

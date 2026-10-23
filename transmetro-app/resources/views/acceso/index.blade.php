@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Control de acceso')
 @section('content')
-<div class="page-head"><div><h1>Control de acceso</h1><p>RF-013 · RF-014 · RN-013: todo ticket se valida antes de permitir el paso</p></div></div>
+<div class="page-head"><div><h1>Control de acceso</h1><p>Todo ticket se valida antes de permitir el paso</p></div></div>
 <div class="grid grid-2">
     <section class="card">
         <h2>Validar ticket</h2>

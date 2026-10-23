@@ -2,11 +2,11 @@
 @section('title', 'Líneas')
 @section('content')
 <div class="page-head">
-    <div><h1>Líneas</h1><p>RF-004 · Líneas, recorridos y distancias</p></div>
+    <div><h1>Líneas</h1><p>Líneas, recorridos y distancias</p></div>
     <a class="btn" href="{{ route('lineas.create') }}">Nueva línea</a>
 </div>
 <div class="card"><div class="table-wrap"><table class="table">
-    <thead><tr><th>Línea</th><th>Municipalidad</th><th>Recorrido</th><th class="num">Distancia</th><th class="num">Buses</th><th>RN-004</th><th>Estado</th><th></th></tr></thead>
+    <thead><tr><th>Línea</th><th>Municipalidad</th><th>Recorrido</th><th class="num">Distancia</th><th class="num">Buses</th><th>Cantidad de buses</th><th>Estado</th><th></th></tr></thead>
     <tbody>
     @forelse ($lineas as $l)
         <tr>

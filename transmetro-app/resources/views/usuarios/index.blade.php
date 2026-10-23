@@ -2,7 +2,7 @@
 @section('title', 'Usuarios')
 @section('content')
 <div class="page-head">
-    <div><h1>Usuarios</h1><p>RF-001 · Gestión de usuarios, roles y permisos</p></div>
+    <div><h1>Usuarios</h1><p>Gestión de usuarios, roles y permisos</p></div>
     <a class="btn" href="{{ route('usuarios.create') }}">Nuevo usuario</a>
 </div>
 <div class="card"><div class="table-wrap"><table class="table">
@@ -32,7 +32,7 @@
 </table></div></div>
 
 <section class="card mt-16">
-    <div class="card-head"><h2>Permisos por rol (RN-015)</h2></div>
+    <div class="card-head"><h2>Permisos por rol</h2></div>
     <div class="table-wrap"><table class="table">
         <thead><tr><th>Módulo</th>@foreach (config('transmetro.roles') as $rol)<th>{{ str_replace('_', ' ', $rol) }}</th>@endforeach</tr></thead>
         <tbody>

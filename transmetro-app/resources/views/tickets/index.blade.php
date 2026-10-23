@@ -2,7 +2,7 @@
 @section('title', 'Tickets')
 @section('content')
 <div class="page-head">
-    <div><h1>Tickets</h1><p>RF-011 · Emisión, estado y uso</p></div>
+    <div><h1>Tickets</h1><p>Emisión, estado y uso de los tickets</p></div>
     @if(auth()->user()->puede('tat'))<a class="btn" href="{{ route('tat') }}">Abrir TAT</a>@endif
 </div>
 <div class="card">

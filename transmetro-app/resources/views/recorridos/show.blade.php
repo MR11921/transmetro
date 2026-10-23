@@ -32,7 +32,7 @@
 
 <div class="grid grid-2">
     <section class="card">
-        <div class="card-head"><h2>Terminal de Control de Pasajeros</h2><small>RF-015 · RF-016</small></div>
+        <div class="card-head"><h2>Terminal de Control de Pasajeros</h2></div>
         @if ($r->estado === 'EN_CURSO' && $siguiente)
             <p>Parada actual: <strong>{{ $siguiente->nombre }}</strong></p>
             <form method="POST" action="{{ route('recorridos.parada', $r) }}" class="form mt-16">@csrf
@@ -41,7 +41,7 @@
                     <x-campo name="pasajeros_abordan" label="Abordan" type="number" min="0" value="0" required />
                     <x-campo name="en_espera" label="Quedan en andén" type="number" min="0" value="0" />
                 </div>
-                <small>Si la demanda (a bordo + en andén) alcanza el {{ config('transmetro.umbral_alta_demanda') }} % de la capacidad se genera una alerta (RN-011). Con ocupación menor al {{ config('transmetro.umbral_baja_ocupacion') }} % se aplican {{ config('transmetro.minutos_espera_adicional') }} min de espera (RN-012).</small>
+                <small>Si la demanda (a bordo + en andén) alcanza el {{ config('transmetro.umbral_alta_demanda') }} % de la capacidad se genera una alerta. Con ocupación menor al {{ config('transmetro.umbral_baja_ocupacion') }} % se aplican {{ config('transmetro.minutos_espera_adicional') }} min de espera.</small>
                 <div class="form-actions"><button class="btn">Registrar parada</button></div>
             </form>
         @elseif ($r->estado === 'EN_CURSO')
@@ -55,7 +55,7 @@
     </section>
 
     <section class="card">
-        <div class="card-head"><h2>Estaciones del recorrido</h2><small>RN-001</small></div>
+        <div class="card-head"><h2>Estaciones del recorrido</h2></div>
         <ol class="steps">
             @foreach ($r->linea->estaciones as $i => $e)
                 @php $c = $visitadas->get($e->id_estacion); $esSiguiente = $siguiente?->id_estacion === $e->id_estacion && $r->estado === 'EN_CURSO'; @endphp
@@ -73,7 +73,7 @@
 </div>
 
 <section class="card mt-16">
-    <div class="card-head"><h2>Alertas del recorrido</h2><small>RF-017 · RF-018</small></div>
+    <div class="card-head"><h2>Alertas del recorrido</h2></div>
     <div class="table-wrap"><table class="table">
         <tbody>
         @forelse ($r->alertas->sortByDesc('id_alerta') as $a)

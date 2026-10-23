@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Registrar incidente')
 @section('content')
-<div class="page-head"><div><h1>Registrar incidente</h1><p>RF-022</p></div></div>
+<div class="page-head"><div><h1>Registrar incidente</h1><p>Describa lo ocurrido y dónde sucedió</p></div></div>
 <div class="card" style="max-width: 800px">
     <form method="POST" action="{{ route('incidentes.store') }}" class="form">@csrf
         <div class="form-row">

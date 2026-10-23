@@ -2,7 +2,7 @@
 @section('title', 'Líneas')
 @section('content')
 @php $editando = $linea->exists; @endphp
-<div class="page-head"><div><h1>{{ $editando ? 'Editar línea' : 'Nueva línea' }}</h1><p>RF-004 · RN-008: toda línea pertenece a una municipalidad</p></div></div>
+<div class="page-head"><div><h1>{{ $editando ? 'Editar línea' : 'Nueva línea' }}</h1><p>Toda línea pertenece a una municipalidad</p></div></div>
 <div class="card" style="max-width: 800px">
     <form method="POST" class="form" action="{{ $editando ? route('lineas.update', $linea) : route('lineas.store') }}">
         @csrf @if($editando) @method('PUT') @endif
