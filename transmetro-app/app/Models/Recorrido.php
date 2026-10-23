@@ -14,6 +14,20 @@ class Recorrido extends Model
     protected $casts = ['fecha_inicio' => 'datetime', 'fecha_fin' => 'datetime'];
 
     public function bus() { return $this->belongsTo(Bus::class, 'id_bus'); }
+
+    /** RN-015: un usuario con rol PILOTO solo ve y opera los recorridos que tiene asignados. */
+    public function scopeVisiblesPara($query, Usuario $usuario)
+    {
+        return $usuario->tieneRol('PILOTO')
+            ? $query->whereHas('piloto', fn ($q) => $q->where('id_usuario', $usuario->id_usuario))
+            : $query;
+    }
+
+    public function esOperablePor(Usuario $usuario): bool
+    {
+        return ! $usuario->tieneRol('PILOTO') || $this->piloto?->id_usuario === $usuario->id_usuario;
+    }
+
     public function linea() { return $this->belongsTo(Linea::class, 'id_linea'); }
     public function piloto() { return $this->belongsTo(Piloto::class, 'id_piloto'); }
     public function controles() { return $this->hasMany(ControlPasajero::class, 'id_recorrido')->orderBy('id_control'); }

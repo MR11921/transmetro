@@ -115,6 +115,8 @@ class DatabaseSeeder extends Seeder
             'nombre' => $p[0], 'apellido' => $p[1], 'formacion_academica' => $p[2], 'telefono' => '4'.rand(1000000, 9999999),
             'correo' => strtolower($p[0]).'.'.strtolower($p[1]).'@transmetro.test', 'direccion' => 'Zona '.rand(1, 21).', Guatemala',
         ]));
+        // El usuario "piloto" entra al sistema como José Ramírez y solo opera sus recorridos en el TCP
+        $pilotos[0]->update(['id_usuario' => Models\Usuario::where('usuario', 'piloto')->value('id_usuario')]);
 
         // Pasajeros, métodos de pago y tickets
         $efectivo = Models\MetodoPago::create(['nombre' => 'Efectivo', 'descripcion' => 'Pago en monedas en el TAT']);

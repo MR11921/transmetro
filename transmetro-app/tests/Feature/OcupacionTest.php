@@ -118,12 +118,70 @@ class OcupacionTest extends TestCase
     public function test_piloto_registra_parada_desde_el_tcp(): void
     {
         $r = $this->recorridoEnCurso(100);
+        $piloto = $this->usuario('PILOTO');
+        $r->piloto->update(['id_usuario' => $piloto->id_usuario]);
 
-        $this->actingAs($this->usuario('PILOTO'))
+        $this->actingAs($piloto)
             ->post("/recorridos/{$r->id_recorrido}/paradas", ['pasajeros_abordan' => 60, 'pasajeros_descienden' => 0, 'en_espera' => 100])
             ->assertSessionHas('ok')->assertSessionHas('aviso');
 
         $this->assertDatabaseHas('control_pasajeros', ['id_recorrido' => $r->id_recorrido, 'ocupacion_calculada' => 60]);
         $this->assertDatabaseHas('auditoria', ['modulo' => 'TCP', 'accion' => 'REGISTRAR_PARADA']);
+    }
+
+    /** CP-058 RN-015: un piloto no puede ver ni operar el recorrido asignado a otro piloto */
+    public function test_piloto_no_opera_recorrido_de_otro_piloto(): void
+    {
+        $ajeno = $this->recorridoEnCurso(100);
+        $propio = $this->recorridoEnCurso(100);
+        $piloto = $this->usuario('PILOTO');
+        $propio->piloto->update(['id_usuario' => $piloto->id_usuario]);
+        $this->actingAs($piloto);
+
+        $this->get("/recorridos/{$ajeno->id_recorrido}")->assertForbidden();
+        $this->post("/recorridos/{$ajeno->id_recorrido}/paradas", ['pasajeros_abordan' => 5, 'pasajeros_descienden' => 0])->assertForbidden();
+        $this->patch("/recorridos/{$ajeno->id_recorrido}/finalizar")->assertForbidden();
+        $this->assertDatabaseMissing('control_pasajeros', ['id_recorrido' => $ajeno->id_recorrido]);
+
+        $this->get("/recorridos/{$propio->id_recorrido}")->assertOk();
+        $this->get('/recorridos')->assertOk()->assertSee($propio->bus->numero_interno)
+            ->assertSee(route('recorridos.show', $propio))->assertDontSee(route('recorridos.show', $ajeno));
+    }
+
+    /** CP-059: el administrador sigue operando cualquier recorrido */
+    public function test_administrador_opera_cualquier_recorrido(): void
+    {
+        $r = $this->recorridoEnCurso(100);
+
+        $this->actingAs($this->usuario('ADMINISTRADOR'))->get("/recorridos/{$r->id_recorrido}")->assertOk();
+    }
+
+    /** CP-060: un usuario piloto sin vínculo no ve recorridos y recibe un aviso */
+    public function test_piloto_sin_vinculo_no_ve_recorridos(): void
+    {
+        $r = $this->recorridoEnCurso(100);
+        $this->actingAs($this->usuario('PILOTO'));
+
+        $this->get('/recorridos')->assertOk()->assertSee('no está vinculado a un piloto')->assertDontSee(route('recorridos.show', $r));
+        $this->get('/ocupacion')->assertOk()->assertSee('no está vinculado a un piloto');
+    }
+
+    /** CP-061: el administrador vincula un piloto con un usuario de rol PILOTO desde el catálogo */
+    public function test_catalogo_vincula_piloto_con_usuario(): void
+    {
+        $piloto = \App\Models\Piloto::create(['nombre' => 'María', 'apellido' => 'Gómez']);
+        $usuarioPiloto = $this->usuario('PILOTO');
+        $guardia = $this->usuario('GUARDIA');
+        $this->actingAs($this->usuario());
+
+        $this->get("/catalogos/pilotos/{$piloto->id_piloto}/editar")->assertOk()
+            ->assertSee('Usuario del sistema')
+            ->assertSee('>'.$usuarioPiloto->usuario.'</option>', false)->assertDontSee('>'.$guardia->usuario.'</option>', false);
+
+        $datos = ['nombre' => 'María', 'apellido' => 'Gómez', 'estado' => 'ACTIVO'];
+        $this->put("/catalogos/pilotos/{$piloto->id_piloto}", [...$datos, 'id_usuario' => $guardia->id_usuario])->assertSessionHasErrors('id_usuario');
+        $this->put("/catalogos/pilotos/{$piloto->id_piloto}", [...$datos, 'id_usuario' => $usuarioPiloto->id_usuario])->assertSessionHasNoErrors();
+
+        $this->assertSame($usuarioPiloto->id_usuario, $piloto->fresh()->id_usuario);
     }
 }

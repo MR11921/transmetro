@@ -13,6 +13,7 @@ class Piloto extends Model
     protected $attributes = ['estado' => 'ACTIVO'];
 
     public function recorridos() { return $this->hasMany(Recorrido::class, 'id_piloto'); }
+    public function usuario() { return $this->belongsTo(Usuario::class, 'id_usuario'); }
 
     public function getNombreCompletoAttribute(): string { return "{$this->nombre} {$this->apellido}"; }
 }

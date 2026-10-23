@@ -5,6 +5,15 @@
     <div><h1>Recorridos</h1><p>Seguimiento de recorridos y Terminal de Control de Pasajeros</p></div>
     @if(auth()->user()->puede('recorridos'))<a class="btn" href="{{ route('recorridos.create') }}">Programar recorrido</a>@endif
 </div>
+@if (auth()->user()->tieneRol('PILOTO'))
+    <div class="alert {{ auth()->user()->piloto ? 'alert-ok' : 'alert-warn' }}" role="status">
+        @if (auth()->user()->piloto)
+            Se muestran solo los recorridos asignados a <strong>{{ auth()->user()->piloto->nombre_completo }}</strong>.
+        @else
+            Su usuario aún no está vinculado a un piloto, por eso no ve recorridos. Pida al administrador que lo asigne en <strong>Pilotos → Usuario del sistema</strong>.
+        @endif
+    </div>
+@endif
 <div class="card">
     <form class="filters" method="GET">
         <div class="field"><label for="estado">Estado</label>

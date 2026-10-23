@@ -17,7 +17,7 @@ class RecorridoController extends Controller
 {
     public function index(Request $request)
     {
-        $recorridos = Recorrido::with(['bus', 'linea', 'piloto'])
+        $recorridos = Recorrido::with(['bus', 'linea', 'piloto'])->visiblesPara($request->user())
             ->when($request->query('estado'), fn ($q, $e) => $q->where('estado', $e))
             ->latest('fecha_inicio')->paginate(20)->withQueryString();
 
@@ -59,6 +59,7 @@ class RecorridoController extends Controller
     /** Panel del recorrido y Terminal de Control de Pasajeros (TCP). */
     public function show(Recorrido $recorrido)
     {
+        $this->autorizarPiloto($recorrido);
         $recorrido->load(['bus', 'linea.estaciones', 'piloto', 'controles.estacion', 'alertas.estacion']);
 
         return view('recorridos.show', [
@@ -71,6 +72,7 @@ class RecorridoController extends Controller
 
     public function iniciar(Recorrido $recorrido)
     {
+        $this->autorizarPiloto($recorrido);
         if ($recorrido->estado !== 'PROGRAMADO') {
             throw new ReglaNegocioException('Solo los recorridos programados pueden iniciarse.');
         }
@@ -89,6 +91,7 @@ class RecorridoController extends Controller
 
     public function registrarParada(Request $request, Recorrido $recorrido, ControlOcupacion $control)
     {
+        $this->autorizarPiloto($recorrido);
         $datos = $request->validate([
             'pasajeros_abordan' => ['required', 'integer', 'min:0', 'max:1000'],
             'pasajeros_descienden' => ['required', 'integer', 'min:0', 'max:1000'],
@@ -104,6 +107,7 @@ class RecorridoController extends Controller
 
     public function finalizar(Recorrido $recorrido)
     {
+        $this->autorizarPiloto($recorrido);
         if ($recorrido->estado !== 'EN_CURSO') {
             throw new ReglaNegocioException('Solo los recorridos en curso pueden finalizarse.');
         }
@@ -123,5 +127,11 @@ class RecorridoController extends Controller
         Auditor::registrar('Recorridos', 'CANCELAR', 'recorridos', $recorrido->id_recorrido);
 
         return back()->with('ok', 'Recorrido cancelado.');
+    }
+
+    /** RN-015: el piloto solo opera en el TCP los recorridos que tiene asignados. */
+    private function autorizarPiloto(Recorrido $recorrido): void
+    {
+        abort_unless($recorrido->esOperablePor(request()->user()), 403, 'Este recorrido está asignado a otro piloto.');
     }
 }

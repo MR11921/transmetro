@@ -87,7 +87,11 @@ class CatalogoController extends Controller
             if ($c[1] === 'select') {
                 [$fuente] = $c['fuente'];
                 $f = new $fuente;
-                $regla[] = Rule::exists($f->getTable(), $f->getKeyName());
+                $existe = Rule::exists($f->getTable(), $f->getKeyName());
+                if ($donde = $c['donde'] ?? null) {
+                    $existe->whereIn($f->getKeyName(), $donde($fuente::query())->pluck($f->getKeyName())->all());
+                }
+                $regla[] = $existe;
             }
 
             $reglas[$campo] = $regla;
@@ -112,7 +116,12 @@ class CatalogoController extends Controller
     {
         return collect($def['campos'])
             ->filter(fn ($c) => $c[1] === 'select')
-            ->map(fn ($c) => $c['fuente'][0]::orderBy($c['fuente'][1])->pluck($c['fuente'][1], (new $c['fuente'][0])->getKeyName()))
+            ->map(function ($c) {
+                [$fuente, $columna] = $c['fuente'];
+                $consulta = isset($c['donde']) ? $c['donde']($fuente::query()) : $fuente::query();
+
+                return $consulta->orderBy($columna)->pluck($columna, (new $fuente)->getKeyName());
+            })
             ->all();
     }
 }

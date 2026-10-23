@@ -59,7 +59,7 @@ class Catalogos
             ],
             'pilotos' => [
                 'titulo' => 'Pilotos', 'singular' => 'piloto', 'rf' => 'RF-009',
-                'modelo' => Models\Piloto::class, 'orden' => 'apellido',
+                'modelo' => Models\Piloto::class, 'orden' => 'apellido', 'con' => ['usuario'],
                 'campos' => [
                     'nombre' => ['Nombre', 'text', 'required|max:100'],
                     'apellido' => ['Apellido', 'text', 'required|max:100'],
@@ -67,6 +67,9 @@ class Catalogos
                     'correo' => ['Correo', 'email', 'nullable|email|max:150'],
                     'direccion' => ['Dirección de residencia', 'text', 'nullable|max:250'],
                     'formacion_academica' => ['Formación académica', 'text', 'nullable|max:250'],
+                    // Usuario con el que el piloto entra al sistema y opera sus recorridos en el TCP
+                    'id_usuario' => ['Usuario del sistema', 'select', 'nullable', 'unico' => true, 'mostrar' => 'usuario.usuario',
+                        'fuente' => [Models\Usuario::class, 'usuario'], 'donde' => fn ($q) => $q->whereHas('rol', fn ($r) => $r->where('nombre', 'PILOTO'))],
                     'estado' => ['Estado', 'enum', 'required', 'opciones' => ['ACTIVO', 'INACTIVO']],
                 ],
             ],

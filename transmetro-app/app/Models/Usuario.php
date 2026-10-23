@@ -22,6 +22,7 @@ class Usuario extends Authenticatable
 
     public function rol() { return $this->belongsTo(Rol::class, 'id_rol'); }
     public function operaciones() { return $this->hasMany(OperadorEstacion::class, 'id_usuario'); }
+    public function piloto() { return $this->hasOne(Piloto::class, 'id_usuario'); }
 
     public function tieneRol(string ...$roles): bool
     {

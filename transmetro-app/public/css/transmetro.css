@@ -315,6 +315,11 @@ a.kpi-icon:hover { border-color: var(--blue); box-shadow: inset 0 -4px 0 var(--g
 .check { color: var(--success); font-weight: 700; font-size: 15px; }
 h2 .badge { vertical-align: middle; }
 
+/* Bloque del formulario que depende del rol elegido */
+.solo-rol { border: 2px solid var(--green); background: var(--green-soft); padding: 12px 16px 16px; margin: 0; display: grid; gap: 8px; }
+.solo-rol[hidden] { display: none; }
+.solo-rol legend { padding: 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
+
 /* Aviso de versión local (APP_ENV=local) */
 .aviso-local {
   display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;

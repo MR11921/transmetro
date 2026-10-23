@@ -5,6 +5,10 @@
     <div><h1>Ocupación de buses</h1><p>Abra el TCP de un bus para registrar abordajes y descensos</p></div>
 </div>
 
+@if ($sinVinculo)
+    <div class="alert alert-warn" role="status">Su usuario aún no está vinculado a un piloto, por eso no ve recorridos. Pida al administrador que lo asigne en <strong>Pilotos → Usuario del sistema</strong>.</div>
+@endif
+
 <div class="leyenda">
     <span><i class="sw ok"></i> Normal</span>
     <span><i class="sw warn"></i> Baja ocupación (&lt; {{ $umbralBaja }} %): +{{ $minutos }} min por estación</span>

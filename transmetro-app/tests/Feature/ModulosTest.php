@@ -42,8 +42,10 @@ class ModulosTest extends TestCase
     public function test_ocupacion_muestra_buses_en_ruta(): void
     {
         $recorrido = $this->recorridoEnCurso();
+        $piloto = $this->usuario('PILOTO');
+        $recorrido->piloto->update(['id_usuario' => $piloto->id_usuario]);
 
-        $this->actingAs($this->usuario('PILOTO'))->get('/ocupacion')
+        $this->actingAs($piloto)->get('/ocupacion')
             ->assertOk()
             ->assertSee('Bus '.$recorrido->bus->numero_interno)
             ->assertSee('Abrir TCP');
