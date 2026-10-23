@@ -61,6 +61,18 @@ class ModulosTest extends TestCase
             ->assertSee(number_format($linea->distanciaTotal(), 2).' km');
     }
 
+    /** CP-057 */
+    public function test_aviso_de_version_local_solo_fuera_de_produccion(): void
+    {
+        $usuario = $this->usuario();
+
+        $this->app['env'] = 'local';
+        $this->actingAs($usuario)->get('/')->assertSee('Versión local')->assertSee('[LOCAL]');
+
+        $this->app['env'] = 'production';
+        $this->actingAs($usuario)->get('/')->assertDontSee('Versión local')->assertDontSee('[LOCAL]');
+    }
+
     /** CP-056 */
     public function test_consulta_integral_de_una_linea(): void
     {

@@ -3,12 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar sesión · Transmetro</title>
+    <title>{{ app()->isLocal() ? '[LOCAL] ' : '' }}Iniciar sesión · Transmetro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="{{ asset('css/transmetro.css') }}">
 </head>
 <body>
+@include('partials.aviso-local')
 <div class="login-wrap">
     <div class="login">
         <div class="card">
