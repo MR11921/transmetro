@@ -10,3 +10,7 @@ transmetro-app/graphify-out/
 transmetro-app/.env
 transmetro-app/.env.*
 !transmetro-app/.env.example
+
+# Material de presentación (se queda solo en la computadora)
+Guia del codigo - Transmetro.*
+Transmetro - Resumen ejecutivo.pptx

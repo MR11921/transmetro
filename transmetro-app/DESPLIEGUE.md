@@ -1,97 +1,112 @@
-# Despliegue en Oracle Cloud (Always Free)
+# Despliegue en Render (plan gratuito)
 
-Arquitectura: **VM Ampere A1 (Ubuntu)** con Docker → contenedor **Caddy** (HTTPS automático con un dominio `sslip.io`) → contenedor **Laravel + Apache + oci8** → **Oracle Autonomous Database 23ai** (TLS, sin wallet).
+**Versión publicada:** https://transmetro-8daj.onrender.com
 
-Todo es de la capa *Always Free*: no genera cobros mientras se use solo esa capa.
+Arquitectura: **GitHub** (`MR11921/transmetro`, rama `main`) → **Render** compila el `Dockerfile` → contenedor **Laravel + Apache** → **PostgreSQL** de Render. HTTPS lo da Render automáticamente.
+
+Todo usa el plan **Free** de Render, así que no genera cobros.
 
 ---
 
-## Paso 1. Crear la cuenta (lo hace el dueño del proyecto)
+## Archivos que intervienen
 
-1. Entrar a <https://www.oracle.com/cloud/free/> → **Start for free**.
-2. Región de origen sugerida: **Mexico Central (Querétaro)**, la más cercana a Guatemala. No se puede cambiar después.
-3. La tarjeta solo se usa para verificar identidad.
-
-## Paso 2. Crear la máquina virtual
-
-Menú ☰ → **Compute → Instances → Create instance**
-
-| Campo | Valor |
+| Archivo | Para qué sirve |
 |---|---|
-| Name | `transmetro-vm` |
-| Image | **Canonical Ubuntu 24.04** |
-| Shape | **Ampere → VM.Standard.A1.Flex**, 1 OCPU, 6 GB (marcado *Always Free-eligible*) |
-| Networking | Crear VCN nueva, subred **pública**, **Assign a public IPv4 address** |
-| SSH keys | **Paste public keys** → pegar el contenido de `~/.ssh/transmetro_oci.pub` |
+| `../render.yaml` (raíz del repositorio) | *Blueprint*: define el servicio web `transmetro` (Docker) y la base `transmetro-db` (PostgreSQL), y sus variables de entorno |
+| `Dockerfile` | Imagen PHP 8.4 + Apache con `pdo_pgsql` y `gd` (para el logo de los PDF). El cliente de Oracle solo se instala con `WITH_ORACLE=true` |
+| `docker/entrypoint.sh` | Se ejecuta en cada arranque: ajusta el puerto (`$PORT`), la clave (`APP_KEY`) y la URL, aplica las migraciones y carga los datos de demostración **solo si la base está vacía** |
 
-> Si aparece *Out of capacity* para Ampere, intentar otro *Availability Domain* o usar **VM.Standard.E2.1.Micro** (AMD, también gratis, más lenta).
+Variables definidas en `render.yaml`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY` (la genera Render), `DB_CONNECTION=pgsql`, `DB_URL` (la toma de `transmetro-db`), `SESSION_DRIVER=database`, `CACHE_STORE=database`, `LOG_CHANNEL=stderr`, `TRUSTED_PROXIES=*` y `SEED_IF_EMPTY=true`.
 
-Al terminar, anotar la **Public IP address**.
+---
 
-**Abrir puertos web:** en la instancia → *Subnet* → *Security Lists* → *Default Security List* → **Add Ingress Rules**:
-- Source CIDR `0.0.0.0/0`, TCP, Destination port **80**
-- Source CIDR `0.0.0.0/0`, TCP, Destination port **443**
+## Primer despliegue (ya realizado)
 
-## Paso 3. Crear la base de datos
+1. Crear la cuenta en <https://dashboard.render.com/register> con **GitHub** y autorizar el acceso al repositorio.
+2. **New → Blueprint** → elegir `MR11921/transmetro`.
+3. **Blueprint Name:** `transmetro` · **Branch:** `main` · **Blueprint Path:** vacío (usa `render.yaml`).
+4. Render muestra *Create database transmetro-db* y *Create web service transmetro* → **Deploy Blueprint**.
+5. La primera compilación tarda de 5 a 10 minutos. Al terminar, el servicio dice **Live** y muestra su dirección `https://…onrender.com`.
 
-Menú ☰ → **Oracle Database → Autonomous Database → Create Autonomous Database**
+En el primer arranque la base está vacía, así que se crean las tablas y se cargan los usuarios de demostración (contraseña `Transmetro2026`, ver README).
 
-| Campo | Valor |
+---
+
+## Publicar cambios
+
+Cada `git push` a `main` vuelve a compilar y publicar la app automáticamente:
+
+```bash
+git add -A && git commit -m "Describe el cambio" && git push
+```
+
+- Las **migraciones nuevas** se aplican solas al arrancar. Si una migración falla, el contenedor nuevo no arranca y Render mantiene la versión anterior.
+- Los **datos se conservan** entre despliegues: la carga de demostración solo corre si no hay ningún usuario.
+- Para confirmar la versión publicada: Render → servicio **transmetro** → *Events* → el último deploy debe decir **Live** con el commit esperado.
+
+Antes de subir, conviene correr `php artisan test` y, si cambió el `Dockerfile` o una migración, probar la imagen localmente (ver abajo).
+
+---
+
+## Límites del plan gratuito
+
+| Límite | Efecto |
 |---|---|
-| Display name / Database name | `transmetro` |
-| Workload type | **Transaction Processing** |
-| Always Free | **Activado** |
-| Database version | **23ai** |
-| Password (ADMIN) | una contraseña segura (guardarla) |
-| Network access | **Secure access from allowed IPs and VCNs only** → IP address = *IP pública de la VM* |
-| Require mutual TLS (mTLS) | **Desmarcado** |
+| El servicio se duerme tras unos 15 minutos sin visitas | La primera visita después tarda de 30 a 60 segundos |
+| La base PostgreSQL gratuita vence a los 30 días (creada el 22/10/2026) | Hacia el 21/11/2026 Render la elimina, salvo que se pase a un plan de pago |
+| Sin respaldos automáticos en el plan gratuito | Para RNF-010, exportar los datos antes del vencimiento o usar un plan con respaldos |
 
-Cuando esté *Available*:
+---
 
-1. **Database actions → SQL** (entra como ADMIN) y ejecutar, cambiando la contraseña:
+## Versión local vs. publicada
 
-   ```sql
-   CREATE USER TRANSMETRO IDENTIFIED BY "Cambie_Esta_Clave_2026";
-   GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE TRIGGER,
-         CREATE VIEW, CREATE PROCEDURE TO TRANSMETRO;
-   GRANT CTXAPP TO TRANSMETRO;
-   ALTER USER TRANSMETRO QUOTA UNLIMITED ON DATA;
-   ```
+| | Local (`php artisan serve` o el preview) | Render |
+|---|---|---|
+| `APP_ENV` | `local` | `production` |
+| Base de datos | SQLite (`database/database.sqlite`) | PostgreSQL `transmetro-db` |
+| Aviso | Franja amarilla **"Versión local"** y pestañas con `[LOCAL]` | Sin aviso |
 
-   La contraseña debe tener 12–30 caracteres, mayúsculas, minúsculas y números, y no puede contener la palabra TRANSMETRO.
+Los datos de cada copia son independientes: lo que se registra en local no aparece en Render.
 
-2. **Database connection** → *TLS authentication* = **TLS** → copiar la cadena de **`transmetro_low`** (empieza con `(description=`).
+---
 
-## Paso 4. Configurar y publicar
+## Probar la imagen localmente (opcional)
 
-1. Copiar `docker/env.production.example` a `.env.production` y completar:
-   - `APP_KEY`: `php artisan key:generate --show`
-   - `APP_URL`: `https://<IP-con-guiones>.sslip.io` (ej. IP `129.146.1.2` → `https://129-146-1-2.sslip.io`)
-   - `DB_TNS`: la cadena del paso 3.2
-   - `DB_PASSWORD`: la contraseña de TRANSMETRO
-2. Publicar (la primera vez con datos de demostración):
+Con Docker Desktop abierto, desde `transmetro-app/`:
 
-   ```bash
-   docker/deploy.sh <IP_PUBLICA_VM> --seed
-   ```
+```bash
+docker network create tm-net
+docker run -d --name tm-pg --network tm-net -e POSTGRES_USER=transmetro -e POSTGRES_PASSWORD=prueba123 -e POSTGRES_DB=transmetro postgres:16
+docker build -t transmetro-render .
+docker run -d --name tm-app --network tm-net -p 8099:10000 -e PORT=10000 -e APP_ENV=production -e APP_KEY=cualquier-texto-largo -e DB_CONNECTION=pgsql -e DB_URL=postgresql://transmetro:prueba123@tm-pg:5432/transmetro -e SESSION_DRIVER=database -e CACHE_STORE=database -e SEED_IF_EMPTY=true transmetro-render
+```
 
-3. Abrir `https://<IP-con-guiones>.sslip.io`. El certificado HTTPS tarda unos segundos la primera vez.
+Abrir http://localhost:8099 y, al terminar, borrar los contenedores:
 
-Para publicar cambios después: `docker/deploy.sh <IP_PUBLICA_VM>` (sin `--seed`). Las migraciones nuevas se aplican solas al arrancar el contenedor.
+```bash
+docker rm -f tm-app tm-pg && docker network rm tm-net
+```
 
 ---
 
 ## Operación
 
-| Tarea | Comando (en la VM, carpeta `~/transmetro`) |
+| Tarea | Dónde |
 |---|---|
-| Ver registros | `sudo docker compose logs -f app` |
-| Reiniciar | `sudo docker compose restart` |
-| Consola Laravel | `sudo docker compose exec app php artisan tinker` |
+| Ver registros (logs) | Render → servicio **transmetro** → *Logs* |
+| Reiniciar | Render → servicio → *Manual Deploy → Restart service* |
+| Volver a una versión anterior | Render → servicio → *Events* → *Rollback* en un deploy anterior |
+| Consola de la base | Render → **transmetro-db** → *Connect* (cadena `psql`) |
 
-**Respaldos (RNF-010):** Autonomous Database hace respaldos automáticos diarios con 60 días de retención; se restauran desde la consola (*Backups → Restore*).
+---
 
-## Probar localmente contra Oracle
+## Alternativa descartada: Oracle Cloud
+
+Primero se preparó un despliegue en **Oracle Cloud Always Free** (VM Ampere + Autonomous Database 23ai, con Caddy y `sslip.io`). Se descartó porque la región asignada no tenía capacidad para crear la máquina virtual. Después se intentó **Railway**, pero estaba caído para cuentas de prueba, y por eso se usó Render.
+
+Los archivos de esa opción siguen en el repositorio por si se retoma: `docker-compose.yml`, `docker/Caddyfile`, `docker/deploy.sh` y `docker/env.production.example`. Para construir la imagen con Oracle se usa `WITH_ORACLE=true` (así lo hace `docker-compose.yml`).
+
+Para probar contra Oracle en local:
 
 ```bash
 docker run -d --name transmetro-oracle -p 1521:1521 -e ORACLE_PASSWORD=<clave> \
