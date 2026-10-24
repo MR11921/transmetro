@@ -1,8 +1,10 @@
 # macOS
 .DS_Store
 
-# Configuración local de Claude
-.claude/settings.local.json
+# Herramientas locales de desarrollo (no forman parte de la app)
+.claude/
+graphify-out/
+transmetro-app/graphify-out/
 
 # Archivos de entorno con credenciales (se versiona solo .env.example)
 transmetro-app/.env
